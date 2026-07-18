@@ -1,0 +1,16 @@
+@theme {
+  --color-primary:       #0B6B43;
+  --color-deep-landscape:#2C6A45;
+  --color-natural-green: #4D8A4F;
+  --color-olive-green:   #6D8B43;
+  --color-soft-sage:     #AFC8A3;
+  --color-pale-sage:     #DCE8DD;
+  --color-harvest-yellow:#C6C33B;
+  --color-golden-field:  #D7D150;
+  --color-warm-cream:    #F7F7F2;
+  --color-soft-white:    #FAFAF6;
+  --color-morning-sky:   #D9E9EC;
+  --color-cloud-white:   #FFFFFF;
+  --color-muted-brown:   #7B6548;
+  --color-text:          #183A24;
+}

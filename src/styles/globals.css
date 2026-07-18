@@ -1,0 +1,75 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* ═══════════════════════════════════════════════════
+   CUPID'S NATURAL FARM — Global Styles
+   ═══════════════════════════════════════════════════ */
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    background-color: var(--color-warm-cream);
+    color: var(--color-text);
+    font-family: "Georgia", "Palatino", "Times New Roman", serif;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+
+  /* Mobile-friendly tap targets */
+  button, a {
+    min-height: 44px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-cloud-white);
+  }
+}
+
+/* ── Hero video — full bleed ── */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ── Scroll indicator bounce ── */
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
+
+.animate-scroll-bounce {
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+/* ── Use dvh instead of vh on supporting browsers ── */
+@supports (height: 100dvh) {
+  .h-screen {
+    height: 100dvh;
+  }
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-bounce {
+    animation: none;
+    opacity: 0.4;
+  }
+}
