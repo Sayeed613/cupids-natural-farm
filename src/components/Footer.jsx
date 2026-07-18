@@ -16,9 +16,7 @@ const FOOTER_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { label: "Instagram", href: "#" },
-  { label: "Facebook",  href: "#" },
-  { label: "YouTube",   href: "#" },
+  { label: "Facebook",  href: "https://www.facebook.com/cupids4777/" },
 ];
 
 const CONTACT_INFO = [

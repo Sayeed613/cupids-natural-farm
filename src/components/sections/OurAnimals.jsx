@@ -44,7 +44,6 @@ const IMAGE_FILES = [
   "unnamed (15).webp",
   "unnamed (2).webp",
   "unnamed (20).webp",
-  "unnamed (3).webp",
   "unnamed (4).webp",
   "unnamed (5).webp",
   "unnamed (6).webp",
@@ -57,7 +56,7 @@ const VIDEO_FILES = [
   "AQM2VLO-215svwRZ6twn0PuTiNnYhIJzDMsz7pO2_1bgfd_FOQ_Rp4QQW0er6MapKv6VkzoHrIRXdZu6McVzWpsIUv3l-QEFwzhc2gPnIhamXg.mp4",
   "AQMBfssUEqth2xRnzp3NUW4lm4rjBD_hFQ_19Wy4u7Pf8-ngXxz3QpJ8lE5mpqGAo4floMZ5BL2h-fVH-hy3EQ-jPp-zglvBk3w.mp4",
   "AQM_tDN4p7CGKvzdYe7AuewXc0U1zCyl_RYkpKK3qv0LanFX9koQYOIg3C5sqtIo9JPZU3Z0g9wWxoHRI87qiqEwiTbeUjuLug4oxNMtfl8i5Q.mp4",
-  "AQN6nuCZcrPYDO81DqqOzzVAztL3G3MmHcLhVtwxgmnJuBUUUhFqvSF9qHeVh_chlST3G4SCEaYxn136JW7zxgW6JRMgxQUWNffQLGwpasdWw.mp4",
+  "AQN6NnuCZcrPYDO81DqqOzzVAztL3G3MmHcLhVtwxgmnJuBUUUhFqvSF9qHeVh_chlST3G4SCEaYxn136JW7zxgW6JRMgxQUWNffQLGwpasdWw.mp4",
   "AQNnT8wleb1C9iUx4lYCfTppevZtNz-mTpiMOfvXluQkCghMSqUyQQB-66JxLqp3P_a5ti6Qs5syFWz53rW3UxYUl0KPHLVHxXWI-e8psknmaw.mp4",
   "AQNplH7ZL6Qj-2IzLsYxF-_QAkAH39qgYPu_RBgAGyjxt3aqQcgV1m5lFq-XJCEmxnbciGumIFHlosuGHtCFQ2NerzEBuTf8llm8j7rTfN1fpg.mp4",
   "AQOiDkGdl6Qhly5EKJJb3K6e044yJ9XJ4nrBh4JXuOerINSUYvp9QInp9PnvxhPq--BarSrfK-Xbz2V60eQ6ulIBI8veaYuuTxo.mp4",
@@ -254,7 +253,6 @@ export function GalleryOurFarm() {
       GALLERY.forEach((item, i) => {
         const el = tiles[i];
         if (!el) return;
-        const t = entranceTransform(item.dir);
 
         tl.to(
           el,
@@ -341,7 +339,10 @@ export function GalleryOurFarm() {
               key={media.id}
               ref={(el) => (tilesRef.current[media.id - 1] = el)}
               className={`group relative overflow-hidden will-change-transform rounded-lg md:rounded-xl ${spanStr(media.size)}`}
-              style={{ aspectRatio: ratioStr(media.size) }}
+              style={{
+                aspectRatio: ratioStr(media.size),
+                backgroundColor: GRADIENTS[media.id % GRADIENTS.length],
+              }}
             >
               {/* ── Image ── */}
               {media.type === "image" && (
@@ -352,6 +353,7 @@ export function GalleryOurFarm() {
                   loading="lazy"
                   decoding="async"
                   onError={(e) => {
+                    console.warn(`[Gallery] Image failed to load: /images/gallery/${encodeURI(media.file)} (Photo ${media.id})`);
                     e.target.style.display = "none";
                     const parent = e.target.parentElement;
                     if (!parent) return;
@@ -389,6 +391,32 @@ export function GalleryOurFarm() {
                   preload="metadata"
                   data-gallery-video
                   className="w-full h-full object-cover block transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
+                  onError={(e) => {
+                    console.warn(`[Gallery] Video failed to load: /images/gallery/videos/${encodeURI(media.file)} (Video ${media.id})`);
+                    e.target.style.display = "none";
+                    const parent = e.target.parentElement;
+                    if (!parent) return;
+                    const color = GRADIENTS[media.id % GRADIENTS.length];
+                    parent.style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+                    parent.style.display = "flex";
+                    parent.style.alignItems = "center";
+                    parent.style.justifyContent = "center";
+                    const label = document.createElement("span");
+                    label.textContent = `🎥 Video ${String(media.id).padStart(3, "0")}`;
+                    label.style.color = "#183A24";
+                    label.style.fontSize = "clamp(0.75rem, 1.5vw, 1.25rem)";
+                    label.style.fontFamily = "Georgia, serif";
+                    label.style.opacity = "0.5";
+                    label.style.transition = "opacity 0.3s ease";
+                    parent.appendChild(label);
+
+                    parent.addEventListener("mouseenter", () => {
+                      label.style.opacity = "0.8";
+                    });
+                    parent.addEventListener("mouseleave", () => {
+                      label.style.opacity = "0.5";
+                    });
+                  }}
                 />
               )}
 

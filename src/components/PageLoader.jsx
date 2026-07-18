@@ -25,6 +25,8 @@ export function PageLoader({ videoLoaded, onReady }) {
   const exitTl = useRef(null);
   const breathTl = useRef(null);
   const [entryComplete, setEntryComplete] = useState(false);
+  const [timeoutFired, setTimeoutFired] = useState(false);
+  const [forceExit, setForceExit] = useState(false); // final safety net
 
   /* ── Entry animation — fully completes before exit can start ── */
   useEffect(() => {
@@ -85,11 +87,38 @@ export function PageLoader({ videoLoaded, onReady }) {
     return () => ctx.revert();
   }, []);
 
-  /* ── Exit animation — only starts after BOTH video is loaded AND entry finished ── */
+  /* ── Hard timeout: force timeoutFired after 4s even if video never loads ── */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeoutFired(true);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  /* ── Absolute safety net: force exit after 8s regardless of any state ── */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setForceExit(true);
+      // Also directly dismiss the loader as a last-resort bypass
+      // in case the exit animation mechanism gets stuck (e.g., StrictMode
+      // double-invocation of effects killing the GSAP timeline)
+      onReady?.();
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [onReady]);
+
+  /* ── Exit animation — starts when entry done AND (video loaded OR timeout OR force exit) ── */
   useEffect(() => {
     if (exitDone.current) return;
-    if (!videoLoaded) return;
-    if (!entryComplete) return; // wait for entry to fully finish!
+    if (!videoLoaded && !timeoutFired && !forceExit) return;
+    if (!entryComplete) {
+      // If force exit triggered but entry hasn't completed, just skip loader entirely
+      if (forceExit) {
+        onReady?.();
+        return;
+      }
+      return;
+    }
 
     // Kill breathing before exit starts
     breathTl.current?.kill();
@@ -131,8 +160,9 @@ export function PageLoader({ videoLoaded, onReady }) {
     return () => {
       exitTl.current?.kill();
       exitTl.current = null;
+      exitDone.current = false; // Allow effect to re-create timeline if cleaned up (StrictMode safety)
     };
-  }, [videoLoaded, onReady, entryComplete]);
+  }, [videoLoaded, onReady, entryComplete, timeoutFired, forceExit]);
 
   /* ── Breathing animation — gentle pulse while waiting for video ── */
   useEffect(() => {

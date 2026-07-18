@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import { useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -96,21 +96,14 @@ function AppShell() {
       />
 
       <main className="relative">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Hero
-                onCtaClick={handleCtaClick}
-                heroRef={heroRef}
-                scrollProgress={heroOpacity}
-                scrollTranslateY={heroTranslateY}
-                onVideoLoaded={handleVideoLoaded}
-                showContent={loaderDone}
-              />
-            }
-          />
-        </Routes>
+        <Hero
+          onCtaClick={handleCtaClick}
+          heroRef={heroRef}
+          scrollProgress={heroOpacity}
+          scrollTranslateY={heroTranslateY}
+          onVideoLoaded={handleVideoLoaded}
+          showContent={loaderDone}
+        />
 
         {/* ── Journey: Our Story → SVG scroll-draw → The Land → The Trust ── */}
         <Journey />
@@ -147,9 +140,5 @@ function AppShell() {
 
 /* ── Root ── */
 export default function App() {
-  return (
-    <BrowserRouter>
-      <AppShell />
-    </BrowserRouter>
-  );
+  return <AppShell />;
 }

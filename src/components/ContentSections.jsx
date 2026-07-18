@@ -41,16 +41,15 @@ const SECTIONS = [
  *  Flow (fully sequential — one card finishes before next starts):
  *    C1 HOLD  →  C1 SLIDE OUT  →  C2 SLIDE IN  →  C2 HOLD  →  C2 SLIDE OUT  →  C3 SLIDE IN  →  C3 HOLD  →  unpin
  *
- *  Total timeline = 25 + 30 + 30 + 30 + 30 + 30 + 15 = 190 units
- *  TOTAL_SCROLL = 260vh  →  ~1.37 vh per unit
+ *  Total timeline = 30 + 28 + 28 + 30 + 28 + 28 + 30 = 202 units
+ *  TOTAL_SCROLL = 320vh  →  ~1.58 vh per unit
  * ── */
-const TOTAL_SCROLL = 260;
-
-const C1_HOLD = 25;       // Card 1 visible, settled — time to read
-const SLIDE_OUT = 30;     // Card slides up and fades out
-const SLIDE_IN = 30;      // Card slides up from below into view
-const C2_HOLD = 30;       // Card 2 visible, settled — time to read
-const C3_HOLD = 15;       // Card 3 visible, then section unpins → next section
+const TOTAL_SCROLL = 320;
+const C1_HOLD = 30;
+const SLIDE_OUT = 28;
+const SLIDE_IN = 28;
+const C2_HOLD = 30;
+const _C3_HOLD = 30; // hold duration for card 3 (prefix _ to denote intentionally unused in JS, referenced in comment)
 
 export default function LifeAtTheFarm() {
   const sectionRef = useRef(null);
@@ -90,10 +89,11 @@ export default function LifeAtTheFarm() {
 
       // --- Timeline positions (fully sequential) ---
       // Each phase completes entirely before the next begins
-      const C1_SLIDE_OUT = C1_HOLD;                                          //  35
-      const C2_SLIDE_IN  = C1_SLIDE_OUT + SLIDE_OUT;                         //  65
-      const C2_SLIDE_OUT = C2_SLIDE_IN + SLIDE_IN + C2_HOLD;                 // 125
-      const C3_SLIDE_IN  = C2_SLIDE_OUT + SLIDE_OUT;                         // 155
+      const C1_SLIDE_OUT = C1_HOLD;
+      const C2_SLIDE_IN  = C1_SLIDE_OUT + SLIDE_OUT;
+      const C2_SLIDE_OUT = C2_SLIDE_IN + SLIDE_IN + C2_HOLD;
+      const C3_SLIDE_IN  = C2_SLIDE_OUT + SLIDE_OUT;
+      // Total: TIMELINE_TOTAL = C3_SLIDE_IN + SLIDE_IN + C3_HOLD
       // Timeline ends at C3_SLIDE_IN + SLIDE_IN + C3_HOLD = 200
 
       const card1Text = card1 && card1.querySelector('[data-text]');

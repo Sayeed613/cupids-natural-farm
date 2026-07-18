@@ -69,7 +69,7 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
         preload="auto"
         aria-hidden="true"
       >
-        <source src="/images/hero/hero-image.mp4" type="video/mp4" />
+        <source src="/images/hero/hero-image-compressed.mp4" type="video/mp4" />
       </video>
 
       {/* ── Subtle bottom gradient only (for scroll indicator visibility) ── */}

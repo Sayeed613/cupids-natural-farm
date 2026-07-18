@@ -5,7 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { OurStory } from "./sections/OurStory";
 import { TheLand  } from "./sections/TheLand";
 import { TheTrust } from "./sections/TheTrust";
-import { WhatWeDo } from "./sections/WhatWeDo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -251,7 +250,7 @@ export function Journey() {
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox="0 0 1200 5000"
-        preserveAspectRatio="xMidYMid meet"
+        preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
         style={{ zIndex: 0 }}

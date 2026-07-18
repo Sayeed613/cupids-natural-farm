@@ -3,8 +3,7 @@ import { motion, useInView } from "framer-motion";
 
 /* ── Farm location — Konganahalli Village, Gowribidnur Taluk, Chikkaballapura Dist. ── */
 const FARM_COORDS = { lat: 13.513558, lng: 77.42592 };
-const FARM_ADDRESS = "Cupid's Natural Farm, Konganahalli Village, Hosur Hobli, Gowribidnur Taluk, Chikkaballapura District, Karnataka, India";
-const GOOGLE_MAPS_URL = `https://www.google.com/maps?q=${encodeURIComponent(FARM_ADDRESS)}`;
+const GOOGLE_MAPS_URL = `https://www.google.com/maps?q=${FARM_COORDS.lat},${FARM_COORDS.lng}`;
 
 /* ── Legend ── */
 const LEGEND_ITEMS = [
