@@ -8,6 +8,7 @@ import Lenis from "lenis";
 import { Header } from "./components/Header";
 import { MenuOverlay } from "./components/MenuOverlay";
 import { Hero } from "./components/Hero";
+import { PageLoader } from "./components/PageLoader";
 import { Journey } from "./components/Journey";
 import { GalleryOurFarm } from "./components/sections/OurAnimals";
 import LifeAtTheFarm from "./components/ContentSections";
@@ -38,6 +39,8 @@ function AppShell() {
   const closeNav  = () => setNavOpen(false);
   const inited = useRef(false);
   const heroRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [loaderDone, setLoaderDone] = useState(false);
 
   /* ── Framer-motion scroll-driven hero fade ── */
   const { scrollYProgress } = useScroll({
@@ -80,6 +83,9 @@ function AppShell() {
     scrollToSection("our-story");
   }, []);
 
+  const handleVideoLoaded = useCallback(() => setVideoLoaded(true), []);
+  const handleLoaderReady = useCallback(() => setLoaderDone(true), []);
+
   return (
     <>
       <Header isNavOpen={navOpen} onToggleNav={toggleNav} />
@@ -99,6 +105,8 @@ function AppShell() {
                 heroRef={heroRef}
                 scrollProgress={heroOpacity}
                 scrollTranslateY={heroTranslateY}
+                onVideoLoaded={handleVideoLoaded}
+                showContent={loaderDone}
               />
             }
           />
@@ -125,6 +133,14 @@ function AppShell() {
 
       {/* ── Footer ── */}
       <Footer />
+
+      {/* ── Full-screen loader — shown until video is ready ── */}
+      {!loaderDone && (
+        <PageLoader
+          videoLoaded={videoLoaded}
+          onReady={handleLoaderReady}
+        />
+      )}
     </>
   );
 }

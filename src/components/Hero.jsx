@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
 /* ── Content ── */
@@ -9,87 +9,47 @@ const DESCRIPTION =
 const CTA = "Explore Our Story";
 const headlineWords = HEADLINE.split(" ");
 
-/* ── Scroll-fade wrapper (fades entire hero content on scroll) ── */
-const scrollFade = (progress) => ({
-  opacity: 1 - progress,
-  y: -(progress * 40),
-});
-
 /**
  * Hero — Fullscreen cinematic video hero.
  *
  * Props:
- *   onCtaClick  — callback for the CTA button
- *   heroRef     — forwarded ref to the hero section (for scroll measurement)
- *   scrollProgress — 0–1 value from parent controlling content fade
+ *   onCtaClick      — callback for the CTA button
+ *   heroRef         — forwarded ref to the hero section (for scroll measurement)
+ *   scrollProgress  — 0–1 value from parent controlling content fade
+ *   onVideoLoaded   — called when the hero video can play through
+ *   showContent     — when true, hero content mounts & entrance animations play
  */
-export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY }) {
+export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, onVideoLoaded, showContent = false }) {
+  const videoRef = useRef(null);
+
+  /* ── Notify parent when video is ready ── */
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleCanPlay = () => {
+      onVideoLoaded?.();
+    };
+
+    // If already loaded enough
+    if (video.readyState >= 3) {
+      onVideoLoaded?.();
+      return;
+    }
+
+    video.addEventListener("canplaythrough", handleCanPlay);
+    // Also catch loadeddata as a backup signal
+    video.addEventListener("loadeddata", handleCanPlay, { once: true });
+
+    return () => {
+      video.removeEventListener("canplaythrough", handleCanPlay);
+    };
+  }, [onVideoLoaded]);
+
   const prefersReduced = useRef(
     typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
   ).current;
-
-  /* ── Animation config — skipped when reduced motion ── */
-  const anim = useMemo(
-    () => ({
-      noAnim: prefersReduced,
-      tagline: prefersReduced
-        ? { initial: {}, animate: {} }
-        : {
-            initial: { opacity: 0, y: 20 },
-            animate: {
-              opacity: 1,
-              y: 0,
-              transition: { delay: 1.8, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] },
-            },
-          },
-      headline: prefersReduced
-        ? { initial: {}, animate: {} }
-        : {
-            initial: { opacity: 0, y: 20 },
-            animate: (i) => ({
-              opacity: 1,
-              y: 0,
-              transition: {
-                delay: 2.4 + i * 0.06,
-                duration: 0.7,
-                ease: [0.25, 0.1, 0.25, 1],
-              },
-            }),
-          },
-      desc: prefersReduced
-        ? { initial: {}, animate: {} }
-        : {
-            initial: { opacity: 0, y: 20 },
-            animate: {
-              opacity: 1,
-              y: 0,
-              transition: { delay: 3.2, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] },
-            },
-          },
-      cta: prefersReduced
-        ? { initial: {}, animate: {} }
-        : {
-            initial: { opacity: 0, scale: 0.95 },
-            animate: {
-              opacity: 1,
-              scale: 1,
-              transition: { delay: 3.8, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] },
-            },
-          },
-      indicator: prefersReduced
-        ? { initial: {}, animate: {} }
-        : {
-            initial: { opacity: 0 },
-            animate: {
-              opacity: 1,
-              transition: { delay: 4.2, duration: 0.6 },
-            },
-          },
-    }),
-    [prefersReduced]
-  );
-
 
   return (
     <section
@@ -101,6 +61,7 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY }) 
     >
       {/* ── Video background ── */}
       <video
+        ref={videoRef}
         className="hero-video"
         autoPlay
         muted
@@ -120,140 +81,162 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY }) 
         }}
       />
 
-      {/* ── Content — scroll-faded wrapper (MotionValue driven) ── */}
-      <motion.div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{
-          opacity: scrollProgress ?? 1,
-          y: scrollTranslateY ?? 0,
-        }}
-      >
-        <div className="text-center px-6 max-w-4xl mx-auto">
-          {/* Tagline — 1.8s */}
-          {!prefersReduced ? (
-            <motion.p
-              className="text-xs md:text-sm tracking-[0.2em] uppercase mb-4 md:mb-6"
-              style={{ color: "var(--color-cloud-white)" }}
-              {...anim.tagline}
-            >
-              {TAGLINE}
-            </motion.p>
-          ) : (
-            <p
-              className="text-xs md:text-sm tracking-[0.2em] uppercase mb-4 md:mb-6"
-              style={{ color: "var(--color-cloud-white)" }}
-            >
-              {TAGLINE}
-            </p>
-          )}
+      {/* ── Content — only mounts when loader is done, so animations start fresh ── */}
+      {showContent && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{
+            opacity: scrollProgress ?? 1,
+            y: scrollTranslateY ?? 0,
+          }}
+        >
+          <div className="text-center px-6 max-w-4xl mx-auto">
+            {/* Tagline — 0.4s after reveal */}
+            {!prefersReduced ? (
+              <motion.p
+                className="text-xs md:text-sm tracking-[0.2em] uppercase mb-4 md:mb-6"
+                style={{ color: "var(--color-cloud-white)" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: { delay: 0.4, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] },
+                }}
+              >
+                {TAGLINE}
+              </motion.p>
+            ) : (
+              <p
+                className="text-xs md:text-sm tracking-[0.2em] uppercase mb-4 md:mb-6"
+                style={{ color: "var(--color-cloud-white)" }}
+              >
+                {TAGLINE}
+              </p>
+            )}
 
-          {/* Headline — 2.4s, words staggered */}
-          {!prefersReduced ? (
-            <h1
-              className="font-serif mb-6 md:mb-8 leading-[1.1]"
-              style={{
-                color: "var(--color-cloud-white)",
-                fontSize: "clamp(1.8rem, 4vw + 0.5rem, 4.5rem)",
-                letterSpacing: "-0.02em",
-                fontWeight: 400,
-              }}
-            >
-              {headlineWords.map((word, i) => (
-                <motion.span
-                  key={i}
-                  className="inline-block mr-[0.3em]"
-                  custom={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    transition: {
-                      delay: 2.4 + i * 0.06,
-                      duration: 0.7,
-                      ease: [0.25, 0.1, 0.25, 1],
-                    },
+            {/* Headline — 0.7s, words staggered every 0.04s */}
+            {!prefersReduced ? (
+              <h1
+                className="font-serif mb-6 md:mb-8 leading-[1.1]"
+                style={{
+                  color: "var(--color-cloud-white)",
+                  fontSize: "clamp(1.8rem, 4vw + 0.5rem, 4.5rem)",
+                  letterSpacing: "-0.02em",
+                  fontWeight: 400,
+                }}
+              >
+                {headlineWords.map((word, i) => (
+                  <motion.span
+                    key={i}
+                    className="inline-block mr-[0.3em]"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        delay: 0.7 + i * 0.04,
+                        duration: 0.6,
+                        ease: [0.25, 0.1, 0.25, 1],
+                      },
+                    }}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </h1>
+            ) : (
+              <h1
+                className="font-serif mb-6 md:mb-8 leading-[1.1]"
+                style={{
+                  color: "var(--color-cloud-white)",
+                  fontSize: "clamp(1.8rem, 4vw + 0.5rem, 4.5rem)",
+                  letterSpacing: "-0.02em",
+                  fontWeight: 400,
+                }}
+              >
+                {HEADLINE}
+              </h1>
+            )}
+
+            {/* Description — 1.0s */}
+            {!prefersReduced ? (
+              <motion.p
+                className="text-sm md:text-base max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
+                style={{ color: "rgba(255,255,255,0.75)" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  transition: { delay: 1.0, duration: 0.7, ease: [0.25, 0.1, 0.25, 1] },
+                }}
+              >
+                {DESCRIPTION}
+              </motion.p>
+            ) : (
+              <p
+                className="text-sm md:text-base max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
+                style={{ color: "rgba(255,255,255,0.75)" }}
+              >
+                {DESCRIPTION}
+              </p>
+            )}
+
+            {/* CTA — 1.4s */}
+            {!prefersReduced ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: { delay: 1.4, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
+                }}
+              >
+                <button
+                  onClick={onCtaClick}
+                  className="inline-block cursor-pointer border-0 px-8 py-3 md:px-10 md:py-3.5
+                             text-sm md:text-base tracking-[0.05em] font-medium
+                             transition-all duration-500 ease-out
+                             hover:scale-[1.04]"
+                  style={{
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-cloud-white)",
+                    borderRadius: "50px",
+                    boxShadow:
+                      "0 4px 14px rgba(11,107,67,0.25), 0 2px 6px rgba(11,107,67,0.15)",
+                    fontFamily: "Georgia, serif",
                   }}
                 >
-                  {word}
-                </motion.span>
-              ))}
-            </h1>
-          ) : (
-            <h1
-              className="font-serif mb-6 md:mb-8 leading-[1.1]"
-              style={{
-                color: "var(--color-cloud-white)",
-                fontSize: "clamp(1.8rem, 4vw + 0.5rem, 4.5rem)",
-                letterSpacing: "-0.02em",
-                fontWeight: 400,
-              }}
-            >
-              {HEADLINE}
-            </h1>
-          )}
-
-          {/* Description — 3.2s */}
-          {!prefersReduced ? (
-            <motion.p
-              className="text-sm md:text-base max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.75)" }}
-              {...anim.desc}
-            >
-              {DESCRIPTION}
-            </motion.p>
-          ) : (
-            <p
-              className="text-sm md:text-base max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
-              style={{ color: "rgba(255,255,255,0.75)" }}
-            >
-              {DESCRIPTION}
-            </p>
-          )}
-
-          {/* CTA — 3.8s */}
-          {!prefersReduced ? (
-            <motion.div {...anim.cta}>
+                  {CTA}
+                </button>
+              </motion.div>
+            ) : (
               <button
                 onClick={onCtaClick}
                 className="inline-block cursor-pointer border-0 px-8 py-3 md:px-10 md:py-3.5
-                           text-sm md:text-base tracking-[0.05em] font-medium
-                           transition-all duration-500 ease-out
-                           hover:scale-[1.04]"
+                           text-sm md:text-base tracking-[0.05em] font-medium"
                 style={{
                   backgroundColor: "var(--color-primary)",
                   color: "var(--color-cloud-white)",
                   borderRadius: "50px",
-                  boxShadow:
-                    "0 4px 14px rgba(11,107,67,0.25), 0 2px 6px rgba(11,107,67,0.15)",
                   fontFamily: "Georgia, serif",
                 }}
               >
                 {CTA}
               </button>
-            </motion.div>
-          ) : (
-            <button
-              onClick={onCtaClick}
-              className="inline-block cursor-pointer border-0 px-8 py-3 md:px-10 md:py-3.5
-                         text-sm md:text-base tracking-[0.05em] font-medium"
-              style={{
-                backgroundColor: "var(--color-primary)",
-                color: "var(--color-cloud-white)",
-                borderRadius: "50px",
-                fontFamily: "Georgia, serif",
-              }}
-            >
-              {CTA}
-            </button>
-          )}
-        </div>
-      </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
 
-      {/* ── Scroll indicator — 4.2s ── */}
-      {!prefersReduced ? (
+      {/* ── Scroll indicator — 1.7s ── */}
+      {showContent && !prefersReduced && (
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          {...anim.indicator}
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+            transition: { delay: 1.7, duration: 0.6 },
+          }}
         >
           <span
             className="text-[10px] md:text-xs tracking-[0.15em] uppercase"
@@ -273,7 +256,10 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY }) 
             <circle cx="8" cy="8" r="2" fill="white" />
           </svg>
         </motion.div>
-      ) : (
+      )}
+
+      {/* ── Scroll indicator — reduced motion: always visible ── */}
+      {showContent && prefersReduced && (
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           style={{ opacity: 0.4 }}
