@@ -1,13 +1,16 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { MagneticButton } from "./MagneticButton";
+import { Fireflies } from "./Fireflies";
+import { TextReveal } from "./TextReveal";
 
 /* ── Content ── */
 const TAGLINE = "Cupid's Natural Farm";
-const HEADLINE = "A Sanctuary Rooted in Nature, Nourished by Tradition";
+const HEADLINE =
+  "A Sanctuary for Heritage, Rooted in the Soil of Karnataka";
 const DESCRIPTION =
-  "Welcome to our family-owned farm where ancient wisdom meets sustainable practices. Discover the taste of pure, natural goodness.";
-const CTA = "Explore Our Story";
-const headlineWords = HEADLINE.split(" ");
+  "Established in 2013 on four acres in Gowribidnur, the Cupid's Goshala Trust protects eight indigenous cow breeds — Hallikar, Amritmahal, Khillar, Malnad Gidda, Deoni, Kapila, Vechur, and Punganur — alongside Elaga sheep, 700+ goats, and native chickens through integrated, chemical-free farming.";
+const CTA = "Read Our Story";
 
 /**
  * Hero — Fullscreen cinematic video hero.
@@ -59,6 +62,9 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
       className="relative h-screen w-full overflow-hidden"
       style={{ backgroundColor: "var(--color-deep-landscape)" }}
     >
+      {/* ── Firefly particles overlay ── */}
+      <Fireflies count={20} />
+
       {/* ── Video background ── */}
       <video
         ref={videoRef}
@@ -68,16 +74,18 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
         playsInline
         preload="auto"
         aria-hidden="true"
+        style={{ opacity: 0, transition: "opacity 1.5s ease" }}
+        onLoadedData={(e) => { e.target.style.opacity = "1"; }}
       >
         <source src="/images/hero/hero-image-compressed.mp4" type="video/mp4" />
       </video>
 
-      {/* ── Subtle bottom gradient only (for scroll indicator visibility) ── */}
+      {/* ── Dark scrim overlay — ensures text legibility against bright video frames ── */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "linear-gradient(to bottom, transparent 0%, rgba(44,106,69,0.08) 60%, rgba(44,106,69,0.2) 100%)",
+            "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0.25) 65%, rgba(0,0,0,0.55) 100%)",
         }}
       />
 
@@ -114,9 +122,14 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
               </p>
             )}
 
-            {/* Headline — 0.7s, words staggered every 0.04s */}
+            {/* Headline — split-type clip-path reveal */}
             {!prefersReduced ? (
-              <h1
+              <TextReveal
+                text={HEADLINE}
+                as="h1"
+                delay={0.7}
+                stagger={0.04}
+                duration={0.6}
                 className="font-serif mb-6 md:mb-8 leading-[1.1]"
                 style={{
                   color: "var(--color-cloud-white)",
@@ -124,26 +137,7 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
                   letterSpacing: "-0.02em",
                   fontWeight: 400,
                 }}
-              >
-                {headlineWords.map((word, i) => (
-                  <motion.span
-                    key={i}
-                    className="inline-block mr-[0.3em]"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        delay: 0.7 + i * 0.04,
-                        duration: 0.6,
-                        ease: [0.25, 0.1, 0.25, 1],
-                      },
-                    }}
-                  >
-                    {word}
-                  </motion.span>
-                ))}
-              </h1>
+              />
             ) : (
               <h1
                 className="font-serif mb-6 md:mb-8 leading-[1.1]"
@@ -191,23 +185,25 @@ export function Hero({ onCtaClick, heroRef, scrollProgress, scrollTranslateY, on
                   transition: { delay: 1.4, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
                 }}
               >
-                <button
-                  onClick={onCtaClick}
-                  className="inline-block cursor-pointer border-0 px-8 py-3 md:px-10 md:py-3.5
-                             text-sm md:text-base tracking-[0.05em] font-medium
-                             transition-all duration-500 ease-out
-                             hover:scale-[1.04]"
-                  style={{
-                    backgroundColor: "var(--color-primary)",
-                    color: "var(--color-cloud-white)",
-                    borderRadius: "50px",
-                    boxShadow:
-                      "0 4px 14px rgba(11,107,67,0.25), 0 2px 6px rgba(11,107,67,0.15)",
-                    fontFamily: "Georgia, serif",
-                  }}
-                >
-                  {CTA}
-                </button>
+                <MagneticButton strength={0.4}>
+                  <button
+                    onClick={onCtaClick}
+                    className="inline-block cursor-pointer border-0 px-8 py-3 md:px-10 md:py-3.5
+                               text-sm md:text-base tracking-[0.05em] font-medium
+                               transition-all duration-500 ease-out
+                               hover:scale-[1.04]"
+                    style={{
+                      backgroundColor: "var(--color-primary)",
+                      color: "var(--color-cloud-white)",
+                      borderRadius: "50px",
+                      boxShadow:
+                        "0 4px 14px rgba(11,107,67,0.25), 0 2px 6px rgba(11,107,67,0.15)",
+                      fontFamily: "Georgia, serif",
+                    }}
+                  >
+                    {CTA}
+                  </button>
+                </MagneticButton>
               </motion.div>
             ) : (
               <button

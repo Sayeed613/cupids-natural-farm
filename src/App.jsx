@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 
 import { useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
@@ -9,14 +9,20 @@ import { Header } from "./components/Header";
 import { MenuOverlay } from "./components/MenuOverlay";
 import { Hero } from "./components/Hero";
 import { PageLoader } from "./components/PageLoader";
-import { Journey } from "./components/Journey";
-import { GalleryOurFarm } from "./components/sections/OurAnimals";
-import LifeAtTheFarm from "./components/ContentSections";
-import { OwnerDetails } from "./components/sections/OwnerDetails";
-import { WhatWeDo } from "./components/sections/WhatWeDo";
-import { ContactSection } from "./components/sections/ContactSection";
-import { Footer } from "./components/Footer";
+import { CustomCursor } from "./components/CustomCursor";
+import { NoiseOverlay } from "./components/NoiseOverlay";
+import { ScrollProgress } from "./components/ScrollProgress";
+import { MarqueeBar } from "./components/MarqueeBar";
 import { scrollToSection } from "./lib/utils";
+
+/* ── Lazy-loaded sections (below the fold — split to reduce initial bundle) ── */
+const Journey           = lazy(() => import("./components/Journey").then((m) => ({ default: m.Journey })));
+const WhatWeDo          = lazy(() => import("./components/sections/WhatWeDo").then((m) => ({ default: m.WhatWeDo })));
+const GalleryOurFarm    = lazy(() => import("./components/sections/OurAnimals").then((m) => ({ default: m.GalleryOurFarm })));
+const LifeAtTheFarm     = lazy(() => import("./components/ContentSections"));
+const OwnerDetails      = lazy(() => import("./components/sections/OwnerDetails").then((m) => ({ default: m.OwnerDetails })));
+const ContactSection    = lazy(() => import("./components/sections/ContactSection").then((m) => ({ default: m.ContactSection })));
+const Footer            = lazy(() => import("./components/Footer").then((m) => ({ default: m.Footer })));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -106,26 +112,34 @@ function AppShell() {
         />
 
         {/* ── Journey: Our Story → SVG scroll-draw → The Land → The Trust ── */}
-        <Journey />
+        <Suspense fallback={null}><Journey /></Suspense>
 
         {/* ── What We Do — cards carousel ── */}
-        <WhatWeDo />
+        <Suspense fallback={null}><WhatWeDo /></Suspense>
+
+        {/* ── Marquee bar between sections ── */}
+        <MarqueeBar />
 
         {/* ── Gallery — Our Farm ── */}
-        <GalleryOurFarm />
+        <Suspense fallback={null}><GalleryOurFarm /></Suspense>
 
         {/* ── Life at the Farm (3 cards) ── */}
-        <LifeAtTheFarm />
+        <Suspense fallback={null}><LifeAtTheFarm /></Suspense>
 
         {/* ── Behind Cupid's ── */}
-        <OwnerDetails />
+        <Suspense fallback={null}><OwnerDetails /></Suspense>
 
         {/* ── Contact ── */}
-        <ContactSection />
+        <Suspense fallback={null}><ContactSection /></Suspense>
       </main>
 
+      {/* ── Global overlay elements ── */}
+      <CustomCursor />
+      <NoiseOverlay />
+      <ScrollProgress />
+
       {/* ── Footer ── */}
-      <Footer />
+      <Suspense fallback={null}><Footer /></Suspense>
 
       {/* ── Full-screen loader — shown until video is ready ── */}
       {!loaderDone && (

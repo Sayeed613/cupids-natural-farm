@@ -119,8 +119,10 @@ export function Footer() {
               className="text-xs leading-relaxed max-w-xs"
               style={{ color: "rgba(24,58,36,0.8)" }}
             >
-              A sanctuary rooted in nature, nourished by tradition. Organic
-              farming, ethical animal husbandry, and a return to simple wisdom.
+              An integrated natural farm rooted in Karnataka's soil.
+              The Cupid's Goshala Trust preserves indigenous cattle
+              breeds alongside Elaga sheep, goats, and free-range
+              poultry through ethical, chemical-free practices.
             </p>
           </FooterSection>
 

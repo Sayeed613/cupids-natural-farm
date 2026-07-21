@@ -5,6 +5,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { OurStory } from "./sections/OurStory";
 import { TheLand  } from "./sections/TheLand";
 import { TheTrust } from "./sections/TheTrust";
+import { useParallax } from "../hooks/use-parallax";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,11 +39,11 @@ export function Journey() {
 
   /* ── Section refs ── */
   const storySectionRef = useRef(null);
-  const storyImageRef   = useRef(null);
+  const storyImageRef   = useParallax(0.25); // subtle parallax
   const storyTlRef      = useRef(null);
 
   const landSectionRef = useRef(null);
-  const landImageRef   = useRef(null);
+  const landImageRef   = useParallax(0.25); // subtle parallax
   const landTlRef      = useRef(null);
 
   const trustSectionRef = useRef(null);

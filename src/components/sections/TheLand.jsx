@@ -29,29 +29,36 @@ export function TheLand({ sectionRef, imageRef }) {
               letterSpacing: "-0.02em",
             }}
           >
-            Where the Earth
+            Four Acres of
             <br />
-            Tells Its Story
+            Regenerative Abundance
           </h2>
           <p
             data-reveal
             className="text-sm md:text-base leading-relaxed max-w-2xl mx-auto mb-4"
             style={{ color: "var(--color-text)" }}
           >
-            Our land spans acres of thoughtfully preserved terrain —
-            open pastures, gentle slopes, and shaded groves that have
-            been cared for across seasons. Every inch of this landscape
-            has been nurtured with the belief that healthy soil grows
-            more than just crops.
+            Our four-acre farm in Konganahalli Village is a carefully
+            orchestrated mosaic of pastures, paddocks, fodder crops,
+            and native vegetation. Every inch is managed with
+            regenerative principles — rotational grazing rejuvenates
+            the soil, composting returns nutrients to the earth, and
+            chemical-free practices ensure that what we grow nourishes
+            rather than depletes.
           </p>
           <p
             data-reveal
             className="text-sm md:text-base leading-relaxed max-w-2xl mx-auto"
             style={{ color: "var(--color-text)" }}
           >
-            Here, regenerative practices restore the earth's vitality.
-            Native grasses sway alongside grazing paths. Pollinators find
-            refuge in flowering borders. The land is not just our
+            We cultivate traditional millets including <strong>ragi
+            (finger millet), jowar (sorghum), and nagali</strong>,
+            alongside seasonal vegetables and fodder crops for our
+            livestock. <strong>Mango, coconut, and banana</strong> trees
+            dot the landscape, while native grasses provide habitat for
+            pollinators and local wildlife. A pond collects rainwater,
+            trees shade the grazing areas, and every animal contributes
+            to the fertility of the soil. Here, the land is not just our
             workplace — it is our partner, our teacher, and our legacy.
           </p>
         </div>

@@ -10,4 +10,15 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("framer-motion")) return "vendor-framer";
+          if (id.includes("gsap")) return "vendor-gsap";
+          if (id.includes("lenis")) return "vendor-lenis";
+        },
+      },
+    },
+  },
 });

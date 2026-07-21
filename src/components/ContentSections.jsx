@@ -10,11 +10,11 @@ const SECTIONS = [
   {
     id: "agriculture",
     headingTag: "01",
-    heading: "Agriculture<br/>Rooted in Wisdom",
+    heading: "Goshala Trust<br/>Protecting Indigenous Breeds",
     image: "/images/agriculture/image.png",
     layout: "overlay",
     description:
-      "Our farming methods honour the land that sustains us. We practice organic cultivation, crop rotation, and no-till farming to build healthy soil. Every seed is planted with intention — from heirloom vegetables to medicinal herbs — grown without chemicals, watered by conservation, and harvested by hand.",
+      "The Cupid's Goshala Trust is the heart of our farm — a sanctuary dedicated to preserving eight indigenous Desi cattle breeds: Hallikar, Amritmahal, Khillar, Malnad Gidda, Deoni, Kapila, Vechur, and Punganur. Our 20–50 cows receive Ayurvedic care, natural feed grown on our own land, and spacious shelter. By protecting these breeds, we protect the genetic heritage that has sustained Indian agriculture for millennia.",
   },
   {
     id: "animals",
@@ -23,16 +23,16 @@ const SECTIONS = [
     image: "/images/animals/image.png",
     layout: "overlay",
     description:
-      "Every animal at Cupid's Natural Farm is treated with dignity and care. Our indigenous Gir cows, goats, poultry, and working horses roam freely in spacious pastures. We practice ethical animal husbandry rooted in Ayurvedic principles — natural feed, clean water, and veterinary care that respects the animal's whole being.",
+      "Every animal at Cupid's Natural Farm is treated with dignity and care. Our eight indigenous cow breeds, Elaga sheep (200–220 head, raised on a 100-day cycle in an elevated slatted-floor shed), 700–800 goats, ~500 free-range native chickens, and fish all thrive in clean, humane enclosures. We practice ethical animal husbandry rooted in Ayurvedic principles — natural feed, clean water, and veterinary care that respects each animal's whole being.",
   },
   {
     id: "natural-living",
     headingTag: "03",
-    heading: "Natural Living<br/>A Return to Simple Wisdom",
+    heading: "Regenerative Farming<br/>Healing the Land",
     image: "/images/natural-living/image.png",
     layout: "overlay",
     description:
-      "We believe the farm is a classroom for a better way of life. From farm-to-table meals made with our own produce to workshops on sustainable living, every experience at Cupid's is designed to reconnect you with the rhythms of nature. Live simply. Eat purely. Breathe deeply.",
+      "We believe the farm is a classroom for a better way of life. We grow traditional millets (ragi, jowar, nagali), seasonal vegetables, and fodder crops alongside mango, coconut, and banana trees — all without chemicals. Through rotational grazing, composting, and rainwater harvesting, we restore the soil and prove that small-scale farming can heal the land.",
   },
 ];
 

@@ -1,6 +1,8 @@
-import { useLayoutEffect, useRef } from "react";
+import { useState, useLayoutEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useTilt } from "../../hooks/use-tilt";
+import { ShimmerPlaceholder } from "../ShimmerPlaceholder";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -335,111 +337,139 @@ export function GalleryOurFarm() {
         {/* ── 4-column masonry grid ── */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 lg:gap-4 auto-rows-auto">
           {GALLERY.map((media) => (
-            <div
+            <TiltedTile
               key={media.id}
-              ref={(el) => (tilesRef.current[media.id - 1] = el)}
-              className={`group relative overflow-hidden will-change-transform rounded-lg md:rounded-xl ${spanStr(media.size)}`}
-              style={{
-                aspectRatio: ratioStr(media.size),
-                backgroundColor: GRADIENTS[media.id % GRADIENTS.length],
-              }}
-            >
-              {/* ── Image ── */}
-              {media.type === "image" && (
-                <img
-                  src={`/images/gallery/${encodeURI(media.file)}`}
-                  alt={`Farm gallery — ${media.id}`}
-                  className="w-full h-full object-cover block transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    console.warn(`[Gallery] Image failed to load: /images/gallery/${encodeURI(media.file)} (Photo ${media.id})`);
-                    e.target.style.display = "none";
-                    const parent = e.target.parentElement;
-                    if (!parent) return;
-                    const color = GRADIENTS[media.id % GRADIENTS.length];
-                    parent.style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
-                    parent.style.display = "flex";
-                    parent.style.alignItems = "center";
-                    parent.style.justifyContent = "center";
-                    const label = document.createElement("span");
-                    label.textContent = `📷 Photo ${String(media.id).padStart(3, "0")}`;
-                    label.style.color = "#183A24";
-                    label.style.fontSize = "clamp(0.75rem, 1.5vw, 1.25rem)";
-                    label.style.fontFamily = "Georgia, serif";
-                    label.style.opacity = "0.5";
-                    label.style.transition = "opacity 0.3s ease";
-                    parent.appendChild(label);
-
-                    parent.addEventListener("mouseenter", () => {
-                      label.style.opacity = "0.8";
-                    });
-                    parent.addEventListener("mouseleave", () => {
-                      label.style.opacity = "0.5";
-                    });
-                  }}
-                />
-              )}
-
-              {/* ── Video (muted, loop, plays on scroll into view) ── */}
-              {media.type === "video" && (
-                <video
-                  src={`/images/gallery/videos/${encodeURI(media.file)}`}
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  data-gallery-video
-                  className="w-full h-full object-cover block transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
-                  onError={(e) => {
-                    console.warn(`[Gallery] Video failed to load: /images/gallery/videos/${encodeURI(media.file)} (Video ${media.id})`);
-                    e.target.style.display = "none";
-                    const parent = e.target.parentElement;
-                    if (!parent) return;
-                    const color = GRADIENTS[media.id % GRADIENTS.length];
-                    parent.style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
-                    parent.style.display = "flex";
-                    parent.style.alignItems = "center";
-                    parent.style.justifyContent = "center";
-                    const label = document.createElement("span");
-                    label.textContent = `🎥 Video ${String(media.id).padStart(3, "0")}`;
-                    label.style.color = "#183A24";
-                    label.style.fontSize = "clamp(0.75rem, 1.5vw, 1.25rem)";
-                    label.style.fontFamily = "Georgia, serif";
-                    label.style.opacity = "0.5";
-                    label.style.transition = "opacity 0.3s ease";
-                    parent.appendChild(label);
-
-                    parent.addEventListener("mouseenter", () => {
-                      label.style.opacity = "0.8";
-                    });
-                    parent.addEventListener("mouseleave", () => {
-                      label.style.opacity = "0.5";
-                    });
-                  }}
-                />
-              )}
-
-              {/* ── Hover vignette overlay ── */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-              {/* ── Type badge ── */}
-              {media.type === "video" && (
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium tracking-wider uppercase pointer-events-none"
-                  style={{
-                    backgroundColor: "rgba(0,0,0,0.45)",
-                    color: "rgba(255,255,255,0.85)",
-                    backdropFilter: "blur(4px)",
-                  }}
-                >
-                  <span className="inline-block w-2 h-2 rounded-full bg-white/80 animate-pulse" />
-                  Video
-                </div>
-              )}
-            </div>
+              media={media}
+              gradients={GRADIENTS}
+              tileRef={(el) => (tilesRef.current[media.id - 1] = el)}
+            />
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+/* ── Extracted tile component for 3D tilt + shimmer ── */
+function TiltedTile({ media, gradients, tileRef: externalRef }) {
+  const tiltAttach = useTilt(6);
+  const [imageLoadedState, setImageLoadedState] = useState(false);
+
+  const combinedRef = useCallback(
+    (el) => {
+      externalRef?.(el);
+      tiltAttach(el);
+    },
+    [externalRef, tiltAttach]
+  );
+
+  return (
+    <div
+      ref={combinedRef}
+      className={`group relative overflow-hidden will-change-transform rounded-lg md:rounded-xl ${spanStr(media.size)}`}
+      style={{
+        aspectRatio: ratioStr(media.size),
+        backgroundColor: gradients[media.id % gradients.length],
+        transformStyle: "preserve-3d",
+        transition: "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      }}
+    >
+      {/* ── Shimmer placeholder while loading ── */}
+      {!imageLoadedState && <ShimmerPlaceholder />}
+
+      {/* ── Image ── */}
+      {media.type === "image" && (
+        <img
+          src={`/images/gallery/${encodeURI(media.file)}`}
+          alt={`Farm gallery — ${media.id}`}
+          className="w-full h-full object-cover block transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImageLoadedState(true)}
+          onError={(e) => {
+            console.warn(`[Gallery] Image failed to load: /images/gallery/${encodeURI(media.file)} (Photo ${media.id})`);
+            e.target.style.display = "none";
+            const parent = e.target.parentElement;
+            if (!parent) return;
+            const color = gradients[media.id % gradients.length];
+            parent.style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+            parent.style.display = "flex";
+            parent.style.alignItems = "center";
+            parent.style.justifyContent = "center";
+            const label = document.createElement("span");
+            label.textContent = `📷 Photo ${String(media.id).padStart(3, "0")}`;
+            label.style.color = "#183A24";
+            label.style.fontSize = "clamp(0.75rem, 1.5vw, 1.25rem)";
+            label.style.fontFamily = "Georgia, serif";
+            label.style.opacity = "0.5";
+            label.style.transition = "opacity 0.3s ease";
+            parent.appendChild(label);
+
+            parent.addEventListener("mouseenter", () => {
+              label.style.opacity = "0.8";
+            });
+            parent.addEventListener("mouseleave", () => {
+              label.style.opacity = "0.5";
+            });
+          }}
+        />
+      )}
+
+      {/* ── Video ── */}
+      {media.type === "video" && (
+        <video
+          src={`/images/gallery/videos/${encodeURI(media.file)}`}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          data-gallery-video
+          className="w-full h-full object-cover block transition-all duration-700 ease-out group-hover:scale-105 group-hover:brightness-110"
+          onError={(e) => {
+            console.warn(`[Gallery] Video failed to load: /images/gallery/videos/${encodeURI(media.file)} (Video ${media.id})`);
+            e.target.style.display = "none";
+            const parent = e.target.parentElement;
+            if (!parent) return;
+            const color = gradients[media.id % gradients.length];
+            parent.style.background = `linear-gradient(135deg, ${color}, ${color}dd)`;
+            parent.style.display = "flex";
+            parent.style.alignItems = "center";
+            parent.style.justifyContent = "center";
+            const label = document.createElement("span");
+            label.textContent = `🎥 Video ${String(media.id).padStart(3, "0")}`;
+            label.style.color = "#183A24";
+            label.style.fontSize = "clamp(0.75rem, 1.5vw, 1.25rem)";
+            label.style.fontFamily = "Georgia, serif";
+            label.style.opacity = "0.5";
+            label.style.transition = "opacity 0.3s ease";
+            parent.appendChild(label);
+
+            parent.addEventListener("mouseenter", () => {
+              label.style.opacity = "0.8";
+            });
+            parent.addEventListener("mouseleave", () => {
+              label.style.opacity = "0.5";
+            });
+          }}
+        />
+      )}
+
+      {/* ── Hover vignette overlay ── */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      {/* ── Type badge ── */}
+      {media.type === "video" && (
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium tracking-wider uppercase pointer-events-none"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.45)",
+            color: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <span className="inline-block w-2 h-2 rounded-full bg-white/80 animate-pulse" />
+          Video
+        </div>
+      )}
+    </div>
   );
 }
